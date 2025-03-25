@@ -24,7 +24,7 @@ model User {
   image String?
   location String?
   website String?
-  createdAt DateTime @default(now()) // member since 2020
+  createdAt DateTime @default(now()) 
   updatedAt DateTime @updatedAt
 
 }

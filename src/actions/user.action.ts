@@ -29,7 +29,24 @@ export async function syncUser() {
 
     return dbUser;
   } catch (error) {
-    console.error("Error syncing user:", error); // Logging added
+    console.error("Error syncing user:", error); 
     return null;
   }
+}
+
+export async function getUserByClerId(clerkId:string) {
+  return prisma.user.findUnique({
+    where : {
+      clerkId,
+    },
+    include : {
+      _count : {
+        select : {
+          followers : true,
+          following : true,
+          posts : true
+        }
+      }
+    }
+  })
 }

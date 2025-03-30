@@ -1,4 +1,4 @@
-import { currentUser } from "@clerk/nextjs/server";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SignInButton, SignUpButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
@@ -7,12 +7,15 @@ import Link from "next/link";
 import { LinkIcon, MapPinIcon } from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { auth } from "@clerk/nextjs/server";
 
 async function Sidebar() {
-  const authUser = await currentUser();
-  if (!authUser) return <UnAuthenticatedSidebar />;
+  const authData = await auth(); 
+  const userId = authData.userId
 
-  const user = await getUserByClerId(authUser.id);
+  if (!userId) return <UnAuthenticatedSidebar />;
+
+  const user = await getUserByClerId(userId);
   if (!user)
     return (
       <div className="text-center text-muted-foreground">

@@ -4,11 +4,17 @@ import MobileNavbar from "./MobileNavbar";
 import { currentUser } from "@clerk/nextjs/server";
 import { syncUser } from "@/actions/user.action";
 
+async function fetchAndSyncUser() {
+  try {
+    const user = await currentUser();
+    if (user) await syncUser(); // Sync only if user exists
+  } catch (error) {
+    console.error("Error fetching or syncing user:", error);
+  }
+}
+
 async function Navbar() {
-
-  const user = await currentUser();
-  if (user) await syncUser(); // POST
-
+  await fetchAndSyncUser(); // Call outside of component rendering
 
   return (
     <nav className="sticky top-0 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
@@ -27,4 +33,5 @@ async function Navbar() {
     </nav>
   );
 }
+
 export default Navbar;

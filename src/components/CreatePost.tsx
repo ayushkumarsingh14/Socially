@@ -6,6 +6,8 @@ import { Textarea } from "./ui/textarea";
 import { useUser } from "@clerk/nextjs";
 import { Button } from "./ui/button";
 import { ImageIcon, Loader2Icon, SendIcon } from "lucide-react";
+import { createPost } from "@/actions/post.action"
+import toast from "react-hot-toast"
 
 function CreatePost() {
   const { user } = useUser();
@@ -14,7 +16,28 @@ function CreatePost() {
   const [isPosting, setIsPosting] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
 
-  const handleSubmit = async () => {};
+  const handleSubmit = async () => {
+    if(!content.trim() && !imageUrl) return
+    setIsPosting(true)
+
+    try {
+      const result = await createPost(content, imageUrl);
+      if(result?.success){
+        setContent("")
+        setImageUrl("")
+        setShowImageUpload(false)
+
+        toast.success("Post created successfully");
+
+      }
+      
+    } catch (error) {
+      toast.success("Post created failed");
+
+    }finally{
+      setIsPosting(false)
+    }
+  };
   return (
     <Card className="mb-6">
       <CardContent>

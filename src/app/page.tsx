@@ -1,4 +1,5 @@
 import CreatePost from "@/components/CreatePost";
+import RecommendUsers from "@/components/RecommendUsers";
 import { currentUser } from "@clerk/nextjs/server";
 
 
@@ -11,7 +12,7 @@ export default async function Home() {
         {user ? <CreatePost/> : null}
       </div>
       <div>
-        who to follow        
+        <RecommendUsers/>        
       </div>      
     </div>
   );

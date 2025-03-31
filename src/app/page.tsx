@@ -11,7 +11,7 @@ export default async function Home() {
       <div className="lg:col-span-6">
         {user ? <CreatePost/> : null}
       </div>
-      <div>
+      <div className="hidden lg:block lg:col-span-4 sticky top-20">
         <RecommendUsers/>        
       </div>      
     </div>

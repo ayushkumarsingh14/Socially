@@ -1,43 +1,33 @@
 "use client";
 
-import { getPost } from "@/actions/post.action";
-import { createComment, deletePost, toggleLike } from "@/actions/user.action";
+import { createComment, deletePost, getPosts, toggleLike } from "@/actions/post.action";
 import { SignInButton, useUser } from "@clerk/nextjs";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { Card, CardContent } from "./ui/card";
 import Link from "next/link";
-import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
-import { DeleteAlertDialog } from "./DeleteAlertDialog";
+import { Avatar, AvatarImage } from "./ui/avatar";
 import { formatDistanceToNow } from "date-fns";
+import { DeleteAlertDialog } from "./DeleteAlertDialog";
 import { Button } from "./ui/button";
 import { HeartIcon, LogInIcon, MessageCircleIcon, SendIcon } from "lucide-react";
 import { Textarea } from "./ui/textarea";
 
-type Posts = Awaited<ReturnType<typeof getPost>>;
+type Posts = Awaited<ReturnType<typeof getPosts>>;
 type Post = Posts[number];
 
-function PostCard({
-  post,
-  dbUserId,
-}: {
-  post: Post;
-  dbUserId: string | null;
-}) {
+function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
   const { user } = useUser();
   const [newComment, setNewComment] = useState("");
-  const [isLiking, setIsLiking] = useState(false);
   const [isCommenting, setIsCommenting] = useState(false);
-  const [hasLiked, setHasLiked] = useState(
-    post.likes.some((like) => like.userId === dbUserId)
-  );
+  const [isLiking, setIsLiking] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [hasLiked, setHasLiked] = useState(post.likes.some((like) => like.userId === dbUserId));
   const [optimisticLikes, setOptmisticLikes] = useState(post._count.likes);
   const [showComments, setShowComments] = useState(false);
 
-  const handlLike = async () => {
+  const handleLike = async () => {
     if (isLiking) return;
-
     try {
       setIsLiking(true);
       setHasLiked((prev) => !prev);
@@ -68,12 +58,17 @@ function PostCard({
   };
 
   const handleDeletePost = async () => {
-    setIsDeleting(true);
+    if (isDeleting) return;
     try {
       setIsDeleting(true);
       const result = await deletePost(post.id);
-      if (result?.success) toast.success("Post deleted successfully");
-    } catch (error) {}
+      if (result.success) toast.success("Post deleted successfully");
+      else throw new Error(result.error);
+    } catch (error) {
+      toast.error("Failed to delete post");
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -82,8 +77,8 @@ function PostCard({
         <div className="space-y-4">
           <div className="flex space-x-3 sm:space-x-4">
             <Link href={`/profile/${post.author.username}`}>
-              <Avatar >
-                <AvatarImage src={post.author.image ?? "/avatar.png"} className="size-8 sm:w-10 sm:h-10 rounded-full"/>
+              <Avatar className="size-8 sm:w-10 sm:h-10">
+                <AvatarImage src={post.author.image ?? "/avatar.png"} />
               </Avatar>
             </Link>
 
@@ -128,7 +123,7 @@ function PostCard({
                 className={`text-muted-foreground gap-2 ${
                   hasLiked ? "text-red-500 hover:text-red-600" : "hover:text-red-500"
                 }`}
-                onClick={handlLike}
+                onClick={handleLike}
               >
                 {hasLiked ? (
                   <HeartIcon className="size-5 fill-current" />
@@ -166,8 +161,8 @@ function PostCard({
                 {/* DISPLAY COMMENTS */}
                 {post.comments.map((comment) => (
                   <div key={comment.id} className="flex space-x-3">
-                    <Avatar >
-                      <AvatarImage src={comment.author.image ?? "/avatar.png"} className="size-8 flex-shrink-0 rounded-full"/>
+                    <Avatar className="size-8 flex-shrink-0">
+                      <AvatarImage src={comment.author.image ?? "/avatar.png"} />
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -188,8 +183,8 @@ function PostCard({
 
               {user ? (
                 <div className="flex space-x-3">
-                  <Avatar >
-                    <AvatarImage src={user?.imageUrl || "/avatar.png"} className="size-8 flex-shrink-0 rounded-full"/>
+                  <Avatar className="size-8 flex-shrink-0">
+                    <AvatarImage src={user?.imageUrl || "/avatar.png"} />
                   </Avatar>
                   <div className="flex-1">
                     <Textarea
@@ -234,5 +229,4 @@ function PostCard({
     </Card>
   );
 }
-
 export default PostCard;

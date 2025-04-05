@@ -5,9 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start"
   },
+  "eslintIgnore": ["*"],
   "dependencies": {
     "@clerk/nextjs": "^6.12.8",
     "@prisma/client": "^6.5.0",

@@ -33,7 +33,8 @@ function CreatePost() {
       
     } catch (error) {
       toast.success("Post created failed");
-
+      console.log(error);
+      
     }finally{
       setIsPosting(false)
     }
